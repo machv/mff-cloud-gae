@@ -9,10 +9,10 @@ handlers:
   static_files: css/jquery.css
   upload: css/jquery\.css
   
-- url: /favicon\.ico
-  static_files: favicon.ico
-  upload: favicon\.ico
-
+- url: /css/images/icons-18-white\.png
+  static_files: css/images/icons-18-white.png
+  upload: css/images/icons-18-white\.png
+  
 - url: .*
   script: main.app
 
