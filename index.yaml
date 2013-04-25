@@ -10,8 +10,25 @@ indexes:
 # automatically uploaded to the admin console when you next deploy
 # your application using appcfg.py.
 
-- kind: Greeting
+- kind: Menu
+  properties:
+  - name: CanteenId
+  - name: Day
+  - name: Order
+
+- kind: Menu
+  properties:
+  - name: Day
+  - name: Order
+
+- kind: Menu
   ancestor: yes
   properties:
-  - name: date
-    direction: desc
+  - name: Date
+  - name: Order
+
+- kind: Menu
+  ancestor: yes
+  properties:
+  - name: Day
+  - name: Order

@@ -3,25 +3,18 @@ import datetime
 import urllib
 import webapp2
 import json
+import jinja2
+import os
 
 from datetime import datetime
-
 from google.appengine.ext import db
-from google.appengine.api import users
 from google.appengine.api import taskqueue
 from google.appengine.api import urlfetch
 
-import jinja2
-import os
 
 JINJA_ENVIRONMENT = jinja2.Environment(
     loader=jinja2.FileSystemLoader(os.path.dirname(__file__)))
 
-class Greeting(db.Model):
-  """Models an individual Guestbook entry with an author, content, and date."""
-  author = db.StringProperty()
-  content = db.StringProperty(multiline=True)
-  date = db.DateTimeProperty(auto_now_add=True)
 
 class Canteen(db.Model):
   Id = db.IntegerProperty()
@@ -30,6 +23,7 @@ class Canteen(db.Model):
   Location = db.GeoPtProperty()
   Latitude = db.FloatProperty()
   Longitude = db.FloatProperty()
+
 
 class Menu(db.Model):
   Id = db.IntegerProperty()
@@ -41,29 +35,46 @@ class Menu(db.Model):
   FullPrice = db.FloatProperty()
   Order = db.IntegerProperty()
 
+
+# menu for each canteen will be in one entity group
+def canteen_key(canteenId=None):
+  return db.Key.from_path('Canteen', canteenId or 0)
+
 class DishCount(db.Model):
   DishId = db.IntegerProperty()
   CanteenId = db.IntegerProperty()
   Count = db.IntegerProperty()
   Date = db.DateTimeProperty(auto_now_add=True)
 
-def guestbook_key(guestbook_name=None):
-  """Constructs a Datastore key for a Guestbook entity with guestbook_name."""
-  return db.Key.from_path('Guestbook', guestbook_name or 'default_guestbook')
 
 class MenuPage(webapp2.RequestHandler):
   def get(self):
-      #canteen = self.request.get('canteen')
-      
       canteen = db.GqlQuery("SELECT * FROM Canteen WHERE Id = :1", int(self.request.get('canteen'))).fetch(1)[0]
       
-      self.response.write(canteen)
+      #self.response.write(self.request.get('canteen'))
       
-      menu = db.GqlQuery("SELECT * FROM Menu " +
-                         "WHERE CanteenId >= :1 " +
-                         "AND Day >= :2 " +
-                         "ORDER BY Day, Order", canteen.Id, datetime.now().date())
+      days = db.GqlQuery("SELECT * FROM Menu " +
+                         "WHERE ANCESTOR IS :1  " +
+                         "AND Date >= :2 " +
+                         "ORDER BY Date, Order", canteen_key(canteen.Id), datetime.now().date())
 
+      #self.response.write('<hr>' + str(days.count()) + '<hr>')
+
+      menu = []
+      
+      previousDay = None
+      dayMenu = []
+      for day in days:
+          if day.Date != previousDay:
+              if len(dayMenu) > 0:
+                  menu.append([previousDay, dayMenu])
+                  dayMenu = []
+              
+          #self.response.write(day.Order)
+          dayMenu.append(day)
+          
+          previousDay = day.Date
+        
       template_values = {
             'canteen': canteen,
             'menu': menu,
@@ -85,9 +96,6 @@ class MainPage(webapp2.RequestHandler):
       self.response.write(template.render(template_values))
 
 
-class Counter(db.Model):
-    count = db.IntegerProperty(indexed=False)
-
 class EnqueueLoader(webapp2.RequestHandler):
     def get(self):
          # Add the task to the default queue.
@@ -95,16 +103,19 @@ class EnqueueLoader(webapp2.RequestHandler):
 
         self.redirect('/')
 
+
 class MenuLoader(webapp2.RequestHandler):
     def post(self): # should run at most 1/s
         key = self.request.get('key')
 
+
 # store menu in transaction -> menu will appear day by day
 @db.transactional
-def storeMenu(canteenId, dishes):
-      for menu in day["Dishes"]:
-          dish = Menu(Date=datetime.strptime(day["Date"], '%Y-%m-%d').date(),
-                      CanteenId=canteen.Id,
+def storeMenu(canteenId, day, dishes):
+      for menu in dishes:
+          dish = Menu(parent=canteen_key(canteenId),
+                      Date=datetime.strptime(day, '%Y-%m-%d').date(),
+                      CanteenId=canteenId,
                       Id=menu["Id"],
                       Name=menu["Name"],
                       Weight=menu["Weight"],
@@ -112,7 +123,6 @@ def storeMenu(canteenId, dishes):
                       FullPrice=float(menu["FullPrice"]),
                       Order=menu["Order"])
           dish.put()
-
 
 
 class SyncMenus(webapp2.RequestHandler):
@@ -128,7 +138,8 @@ class SyncMenus(webapp2.RequestHandler):
             days = json.loads(result.content)
             for day in days:
               self.response.out.write("<hr>" + day["Date"] + "<br>")
-              storeMenu(canteen.Id, day["Dishes"])
+              storeMenu(canteen.Id, day["Date"], day["Dishes"])
+
                                         
 class InitializeCanteens(webapp2.RequestHandler):
     def get(self):
@@ -155,28 +166,10 @@ class InitializeCanteens(webapp2.RequestHandler):
           
           self.response.out.write(str(i) + " canteens loaded.")  
 
-class Guestbook(webapp2.RequestHandler):
-  def post(self):
-    # We set the same parent key on the 'Greeting' to ensure each greeting is in
-    # the same entity group. Queries across the single entity group will be
-    # consistent. However, the write rate to a single entity group should
-    # be limited to ~1/second.
-    guestbook_name = self.request.get('guestbook_name')
-    greeting = Greeting(parent=guestbook_key(guestbook_name))
-
-    if users.get_current_user():
-      greeting.author = users.get_current_user().nickname()
-
-    greeting.content = self.request.get('content')
-    greeting.put()
-    self.redirect('/?' + urllib.urlencode({'guestbook_name': guestbook_name}))
-
-
 app = webapp2.WSGIApplication([('/', MainPage),
                                ('/menu', MenuPage),
                                ('/init', InitializeCanteens),
                                ('/sync', SyncMenus),
                                ('/save', EnqueueLoader),
                                ('/loader', MenuLoader),
-                               ('/sign', Guestbook)],
-                              debug=True)
+                               ], debug=True)

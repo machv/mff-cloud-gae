@@ -1,37 +1,10 @@
-<!DOCTYPE html>
-<html class="ui-mobile"><head>
-	<meta name="viewport" content="width=device-width, initial-scale=1"> 
-	<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
-	<title>Jídelníček pro menzy UK</title>
-	<meta property="og:title" content="Jídelní lístek menz Univerzity Karlovy" />
-	<meta property="og:description" content="Jednoduchý náhled na jídelníček menz Univerzity Karlovy vhodný i pro mobily. Navíc vám najde tu nejbližší menzu ;-)" />
-	<link rel="stylesheet" href="/css/jquery.css">    
-<style>
-.sold
-{
-	color: grey;
-}
-</style>
-</head> 
-<body class="ui-mobile-viewport"> 
+{% extends "base.html" %}
 
-	<div data-role="page" class="type-interior ui-page ui-body-c ui-page-active" style="min-height: 444px; ">
+{% block titulek %}
+  {{ canteen.Name }}
+{% endblock %}
 
-
-		
-			
-	
-			<div data-role="header" data-backbtn="true" class="ui-header ui-bar-a" role="banner">
-				<h1 class="ui-title" tabindex="0" role="heading" aria-level="1">
-          {{ canteen.Name }}
-        </h1>
-
-      <a href="/" data-icon="back" data-iconpos="notext" data-direction="reverse" class="ui-btn-right ui-btn ui-btn-up-a ui-btn-icon-notext ui-btn-corner-all ui-shadow" title="Zpět" data-theme="a"><span class="ui-btn-inner ui-btn-corner-all" aria-hidden="true"><span class="ui-btn-text">Zpět</span><span class="ui-icon ui-icon-back ui-icon-shadow"></span></span></a>
-
-
-			</div>
-
-      
+{% block menu %}
 <div class="ui-bar ui-bar-c">
 				<div class="ui-corner-all ui-controlgroup ui-controlgroup-horizontal">
 					<a n:href="Jidelnicek:menza $id" class="ui-btn ui-btn-inline ui-btn-icon-left ui-corner-right ui-corner-left ui-btn-up-c">
@@ -42,74 +15,59 @@
 					</a>
 				</div><!-- /controlgroup -->
 			</div>
+{% endblock %}
 
+{% block zpet %}
+<a href="/" data-icon="back" data-iconpos="notext" data-direction="reverse" class="ui-btn-right ui-btn ui-btn-up-a ui-btn-icon-notext ui-btn-corner-all ui-shadow" title="Zpět" data-theme="a"><span class="ui-btn-inner ui-btn-corner-all" aria-hidden="true"><span class="ui-btn-text">Zpět</span><span class="ui-icon ui-icon-back ui-icon-shadow"></span></span></a>
+{% endblock %}
 
-			<div class="ui-body ui-body-c">
-
-
-
-
+{% block content %}
 
 <p>{{ canteen.Address }}</p>
 <ul class="ui-listview ui-listview-inset ui-corner-all ui-shadow">
-{foreach $jidelnicek as $menu}
 
+{% for dayMenu in menu %}
+    
 	<li data-role="list-divider" role="heading" class="ui-li ui-li-divider ui-btn ui-bar-b ui-li-has-count ui-btn-up-undefined">
-		{$menu->Date|date:'%d. %m. %Y'}
+		{{ dayMenu[0] }}
 		 <!--span class="ui-li-count ui-btn-up-c ui-btn-corner-all">3</span-->
-	</li>
-	{foreach $menu->Dishes as $dish}
+	</li>  
+  {% for dish in dayMenu[1] %}
+  {{ dish }}
 		<li n:class="ui-li, ui-li-static, ui-body-c, ui-li-has-count, ($dish->Count !== null && $dish->Count == 0) ? sold">
-			{if $dish->StudentPrice != null && $dish->StudentPrice != '0.00'}
+			{% if dish.StudentPrice != '0.00' %}
 			<p class="ui-li-aside ui-li-desc">
-				{if isset($dish->StudentPrice)}
-					{str_replace(".", ",", $dish->StudentPrice)} Kč
-				{/if}
-			<!--/p-->
-			{/if}
-			{if $dish->FullPrice != null && $dish->FullPrice != '0.00'}
-			<!--p class="ui-li-aside ui-li-desc"-->
-				{if isset($dish->FullPrice)}
-					<span style="font-size: 75%"> / {str_replace(".", ",", $dish->FullPrice)} Kč</span>
-				{/if}
+					{{ dish.StudentPrice }} Kč
+			{% endif %}
+			{% if dish.FullPrice != '0.00' %}
+					<span style="font-size: 75%"> / {{ dish.FullPrice }} Kč</span>
 			</p>
-			{/if}
+			{% endif %}
 		    <div style="font-weight: normal; width: 20px; float: left">
-                {if $dish->Order != "0"}
-                    {$dish->Order}.
-                    {else}
+                {% if dish.Order != 0 %}
+                    {{ dish.Order }}.
+                    {% else %}
                     &nbsp;
-                {/if}
-            </div> {$dish->Name}
-            {if $dish->Weight != null}
-                <span style="font-size: 75%">({$dish->Weight})</span>
-            {/if}
-			{if $dish->Count != ""}
-			<span class="ui-li-count ui-btn-up-c ui-btn-corner-all" title="Zbývá porcí">{$dish->Count}</span>
-			{/if}
+                {% endif %}
+            </div> {{ dish.Name }}
+            {% if dish.Weight != None %}
+                <span style="font-size: 75%">({{ dish.Weight }})</span>
+            {% endif %}
+			{% if dish.Count != "" %}
+			<span class="ui-li-count ui-btn-up-c ui-btn-corner-all" title="Zbývá porcí">{{ dish.Count }}</span>
+			{% endif %}
 		</li>
-	{/foreach}
-{/foreach}
+	{% endfor %}
+{% endfor %}
 </ul>
 <br />
+{% endblock %}
 
-	
-  
-  
-  
-  
-
-				     
-				
-			</div>
-
-			<div data-role="footer" class="footer-docs ui-footer ui-bar-c" data-theme="c" role="contentinfo">
-					<p style="margin-left: 10px">mach.im</p>
-			</div>
-
-
-			</div><!-- /page -->
-
-			
-			
-</body></html>
+{% block head %}
+<style>
+.sold
+{
+	color: grey;
+}
+</style>
+{% endblock %}

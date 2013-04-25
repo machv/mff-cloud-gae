@@ -1,17 +1,41 @@
-<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01//EN">
-<html lang="en">
-<html xmlns="http://www.w3.org/1999/xhtml">
-<head>
-    {% block head %}
-    <link rel="stylesheet" href="style.css" />
-    <title>{% block title %}{% endblock %} - My Webpage</title>
-    {% endblock %}
-</head>
-<body>
-    <div id="content">{% block content %}{% endblock %}</div>
-    <div id="footer">
-        {% block footer %}
-        &copy; Copyright 2008 by <a href="http://domain.invalid/">you</a>.
-        {% endblock %}
-    </div>
-</body>
+<!DOCTYPE html>
+<html class="ui-mobile"><head>
+	<meta name="viewport" content="width=device-width, initial-scale=1"> 
+	<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+	<title>Jídelníček pro menzy UK</title>
+	<meta property="og:title" content="Jídelní lístek menz Univerzity Karlovy" />
+	<meta property="og:description" content="Jednoduchý náhled na jídelníček menz Univerzity Karlovy vhodný i pro mobily. Navíc vám najde tu nejbližší menzu ;-)" />
+	<link rel="stylesheet" href="/css/jquery.css">  
+	{% block head %}{% endblock %}
+</head> 
+<body class="ui-mobile-viewport"> 
+
+	<div data-role="page" class="type-interior ui-page ui-body-c ui-page-active" style="min-height: 444px; ">
+
+			<div data-role="header" data-backbtn="true" class="ui-header ui-bar-a" role="banner">
+				<h1 class="ui-title" tabindex="0" role="heading" aria-level="1">{% block titulek %}{% endblock %}</h1>
+{% block zpet %}
+{% endblock %}
+			</div>
+{% block menu %}
+{% endblock %}
+			<div class="ui-body ui-body-c">
+
+
+	{% block content %}{% endblock %}
+
+				     
+				
+			</div>
+
+			<div data-role="footer" class="footer-docs ui-footer ui-bar-c" data-theme="c" role="contentinfo">
+					<p style="margin-left: 10px">Happily running on Google App Engine</p>
+			</div>
+
+
+			</div><!-- /page -->
+
+			
+			
+</body></html>
+
