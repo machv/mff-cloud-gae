@@ -33,8 +33,7 @@
 		 <!--span class="ui-li-count ui-btn-up-c ui-btn-corner-all">3</span-->
 	</li>  
   {% for dish in dayMenu[1] %}
-  {{ dish }}
-		<li n:class="ui-li, ui-li-static, ui-body-c, ui-li-has-count, ($dish->Count !== null && $dish->Count == 0) ? sold">
+		<li class="ui-li ui-li-static ui-body-c ui-li-has-count">
 			{% if dish.StudentPrice != '0.00' %}
 			<p class="ui-li-aside ui-li-desc">
 					{{ dish.StudentPrice }} Kč
@@ -42,7 +41,7 @@
 			{% if dish.FullPrice != '0.00' %}
 					<span style="font-size: 75%"> / {{ dish.FullPrice }} Kč</span>
 			</p>
-			{% endif %}
+      {% endif %}
 		    <div style="font-weight: normal; width: 20px; float: left">
                 {% if dish.Order != 0 %}
                     {{ dish.Order }}.
@@ -53,9 +52,6 @@
             {% if dish.Weight != None %}
                 <span style="font-size: 75%">({{ dish.Weight }})</span>
             {% endif %}
-			{% if dish.Count != "" %}
-			<span class="ui-li-count ui-btn-up-c ui-btn-corner-all" title="Zbývá porcí">{{ dish.Count }}</span>
-			{% endif %}
 		</li>
 	{% endfor %}
 {% endfor %}
