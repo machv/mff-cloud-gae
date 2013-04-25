@@ -86,7 +86,7 @@ class MenuPage(webapp2.RequestHandler):
 
 class MainPage(webapp2.RequestHandler):
   def get(self):
-      canteens = db.GqlQuery("SELECT * FROM Canteen")
+      canteens = db.GqlQuery("SELECT * FROM Canteen ORDER BY Name")
 
       template_values = {
             'canteens': canteens,
