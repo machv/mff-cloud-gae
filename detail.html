@@ -34,11 +34,11 @@
 	</li>  
   {% for dish in dayMenu[1] %}
 		<li class="ui-li ui-li-static ui-body-c ui-li-has-count">
-			{% if dish.StudentPrice != '0.00' %}
+			{% if dish.StudentPrice != 0.0 %}
 			<p class="ui-li-aside ui-li-desc">
 					{{ dish.StudentPrice }} Kč
 			{% endif %}
-			{% if dish.FullPrice != '0.00' %}
+			{% if dish.FullPrice != 0.0 %}
 					<span style="font-size: 75%"> / {{ dish.FullPrice }} Kč</span>
 			</p>
       {% endif %}
