@@ -99,15 +99,9 @@ class MainPage(webapp2.RequestHandler):
 class EnqueueLoader(webapp2.RequestHandler):
     def get(self):
          # Add the task to the default queue.
-        taskqueue.add(url='/loader', params={'load': 'all'})
+        taskqueue.add(url='/sync', params={'load': 'all'})
 
         self.redirect('/')
-
-
-class MenuLoader(webapp2.RequestHandler):
-    def post(self): # should run at most 1/s
-        key = self.request.get('key')
-
 
 # store menu in transaction -> menu will appear day by day
 @db.transactional
@@ -124,21 +118,25 @@ def storeMenu(canteenId, day, dishes):
                       Order=menu["Order"])
           dish.put()
 
-
-class SyncMenus(webapp2.RequestHandler):
-    def get(self):
+def doSync(self):
         # load menu for each canteen 
         canteens = db.GqlQuery("SELECT * FROM Canteen")
         for canteen in canteens:
-            self.response.out.write(canteen.Name)
+            self.response.out.write('<hr>' + canteen.Name + '<hr>')
             
             url = 'http://menzy.wladik.net/api/1.0/menza/' + str(canteen.Id) + '/menu.json'  
             result = urlfetch.fetch(url)
 
             days = json.loads(result.content)
             for day in days:
-              self.response.out.write("<hr>" + day["Date"] + "<br>")
+              self.response.out.write("- " + day["Date"] + "<br>")
               storeMenu(canteen.Id, day["Date"], day["Dishes"])
+              
+class SyncMenus(webapp2.RequestHandler):
+    def get(self):
+        doSync(self)
+    def post(self):
+        doSync(self)
 
                                         
 class InitializeCanteens(webapp2.RequestHandler):
@@ -170,6 +168,5 @@ app = webapp2.WSGIApplication([('/', MainPage),
                                ('/menu', MenuPage),
                                ('/init', InitializeCanteens),
                                ('/sync', SyncMenus),
-                               ('/save', EnqueueLoader),
-                               ('/loader', MenuLoader),
+                               ('/requestSync', EnqueueLoader),
                                ], debug=True)

@@ -6,8 +6,15 @@ Menzy - jídelníček
 {% endblock %}
 
 {% block menu %}
-<div class="ui-bar ui-bar-c" id="GeoTool" style="display: none;">
-				<div   class="ui-corner-all ui-controlgroup ui-controlgroup-horizontal">
+<div class="ui-bar ui-bar-c">
+				<div class="ui-corner-all ui-controlgroup ui-controlgroup-horizontal">
+        	<a href="/requestSync" class="ui-btn ui-btn-inline ui-btn-icon-left ui-corner-right ui-corner-left ui-btn-up-c">
+						<span class="ui-btn-inner ui-corner-left" aria-hidden="true">
+							<span class="ui-btn-text">aktualizovat jídelní lístky</span>
+							<span class="ui-icon ui-icon-refresh ui-icon-shadow"></span>
+						</span>
+					</a>
+        
 				</div><!-- /controlgroup -->
 			</div>
 {% endblock %}
