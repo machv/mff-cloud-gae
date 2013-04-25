@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+
+<html class="ui-mobile"><head>
+	<meta name="viewport" content="width=device-width, initial-scale=1"> 
+	<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+	<title>Jídelníček pro menzy UK</title>
+	<meta property="og:title" content="Jídelní lístek menz Univerzity Karlovy" />
+	<meta property="og:description" content="Jednoduchý náhled na jídelníček menz Univerzity Karlovy vhodný i pro mobily. Navíc vám najde tu nejbližší menzu ;-)" />
+	<link rel="stylesheet" href="/css/jquery.css">  
+</head> 
+<body class="ui-mobile-viewport"> 
+
+	<div data-role="page" class="type-interior ui-page ui-body-c ui-page-active" style="min-height: 444px; ">
+
+
+			<div data-role="header" data-backbtn="true" class="ui-header ui-bar-a" role="banner">
+				<h1 class="ui-title" tabindex="0" role="heading" aria-level="1">Menzy UK</h1>
+
+			</div>
+
+			<div class="ui-body ui-body-c">
+
+
+<!-------------------------------------->
+
+
+      <ul id="seznam" class="ui-listview ui-listview-inset ui-corner-all ui-shadow">
+
+      {% for canteen in canteens %}
+
+	<li></li>
+	<li id="m{{ canteen.Id }}" data-theme="c" class="ui-btn ui-btn-icon-right ui-li-has-arrow ui-li ui-btn-up-c">
+		<div class="ui-btn-inner ui-li" aria-hidden="true">
+			<div class="ui-btn-text">
+				<a href="/menu?canteen={{ canteen.Id }}" class="ui-link-inherit">
+					<h3 class="ui-li-heading">{{ canteen.Name }}</h3>
+					<p class="ui-li-desc">{{ canteen.Address }}</p>
+				</a>
+			</div>
+			<span class="ui-icon ui-icon-arrow-r ui-icon-shadow"></span>
+		</div>
+	</li>
+{% endfor %}
+</ul>
+
+
+
+
+<!-------------------------------------->				     
+				
+			</div>
+
+			<div data-role="footer" class="footer-docs ui-footer ui-bar-c" data-theme="c" role="contentinfo">
+					<p style="margin-left: 10px">Running happily on Google App Engine</p>
+			</div>
+
+
+			</div><!-- /page -->
+
+			
+			
+</body></html>
