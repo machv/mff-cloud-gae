@@ -1,0 +1,4 @@
+cron:
+- description: aktualizace jidelnicku
+  url: /sync
+  schedule: every 24 hours
